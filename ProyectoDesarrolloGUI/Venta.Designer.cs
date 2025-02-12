@@ -243,7 +243,7 @@
             // 
             // btn_RegistrarV
             // 
-            this.btn_RegistrarV.BackColor = System.Drawing.Color.Red;
+            this.btn_RegistrarV.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
             this.btn_RegistrarV.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.btn_RegistrarV.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btn_RegistrarV.Font = new System.Drawing.Font("Arial Black", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -256,7 +256,7 @@
             // 
             // btnCalcular
             // 
-            this.btnCalcular.BackColor = System.Drawing.Color.Red;
+            this.btnCalcular.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
             this.btnCalcular.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.btnCalcular.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCalcular.Font = new System.Drawing.Font("Arial Black", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));

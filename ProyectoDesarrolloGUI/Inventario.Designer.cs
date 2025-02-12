@@ -72,39 +72,44 @@
             this.Id.HeaderText = "ID";
             this.Id.MinimumWidth = 6;
             this.Id.Name = "Id";
+            this.Id.ReadOnly = true;
             // 
             // Nombre
             // 
             this.Nombre.HeaderText = "Nombre";
             this.Nombre.MinimumWidth = 6;
             this.Nombre.Name = "Nombre";
+            this.Nombre.ReadOnly = true;
             // 
             // Descripcion
             // 
             this.Descripcion.HeaderText = "Descripción";
             this.Descripcion.MinimumWidth = 6;
             this.Descripcion.Name = "Descripcion";
+            this.Descripcion.ReadOnly = true;
             // 
             // Precio
             // 
             this.Precio.HeaderText = "Precio";
             this.Precio.MinimumWidth = 6;
             this.Precio.Name = "Precio";
+            this.Precio.ReadOnly = true;
             // 
             // Stock
             // 
             this.Stock.HeaderText = "Stock";
             this.Stock.MinimumWidth = 6;
             this.Stock.Name = "Stock";
+            this.Stock.ReadOnly = true;
             // 
             // button1
             // 
-            this.button1.BackColor = System.Drawing.Color.Red;
+            this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(122, 281);
+            this.button1.Location = new System.Drawing.Point(59, 281);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(98, 36);
+            this.button1.Size = new System.Drawing.Size(108, 36);
             this.button1.TabIndex = 1;
             this.button1.Text = "Modificar";
             this.button1.UseVisualStyleBackColor = false;
@@ -132,12 +137,12 @@
             // 
             // button2
             // 
-            this.button2.BackColor = System.Drawing.Color.Red;
+            this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
             this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button2.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button2.Location = new System.Drawing.Point(246, 281);
+            this.button2.Location = new System.Drawing.Point(185, 281);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(98, 36);
+            this.button2.Size = new System.Drawing.Size(172, 36);
             this.button2.TabIndex = 37;
             this.button2.Text = "Eliminar Productos";
             this.button2.UseVisualStyleBackColor = false;
@@ -145,12 +150,12 @@
             // 
             // button3
             // 
-            this.button3.BackColor = System.Drawing.Color.Red;
+            this.button3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
             this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button3.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button3.Location = new System.Drawing.Point(374, 281);
+            this.button3.Location = new System.Drawing.Point(375, 281);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(97, 36);
+            this.button3.Size = new System.Drawing.Size(166, 36);
             this.button3.TabIndex = 38;
             this.button3.Text = "Guardar Producto";
             this.button3.UseVisualStyleBackColor = false;
@@ -158,12 +163,12 @@
             // 
             // btnAgregar
             // 
-            this.btnAgregar.BackColor = System.Drawing.Color.Red;
+            this.btnAgregar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(108)))), ((int)(((byte)(117)))), ((int)(((byte)(125)))));
             this.btnAgregar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnAgregar.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnAgregar.Location = new System.Drawing.Point(497, 281);
+            this.btnAgregar.Location = new System.Drawing.Point(559, 281);
             this.btnAgregar.Name = "btnAgregar";
-            this.btnAgregar.Size = new System.Drawing.Size(95, 36);
+            this.btnAgregar.Size = new System.Drawing.Size(197, 36);
             this.btnAgregar.TabIndex = 39;
             this.btnAgregar.Text = "Agregar Producto";
             this.btnAgregar.UseVisualStyleBackColor = false;
