@@ -1,4 +1,5 @@
 ﻿using ProyectoDesarrolloGUI.Base_de_datos;
+using ProyectoDesarrolloGUI.Vistas;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -22,15 +23,50 @@ namespace ProyectoDesarrolloGUI
         private void btnAgregar_Click(object sender, EventArgs e)
         {
             FormularioAgregarProducto formAgregar = new FormularioAgregarProducto();
-            formAgregar.StartPosition = FormStartPosition.CenterScreen; // Asegura que se abra centrado
-            formAgregar.ShowDialog();
+            formAgregar.StartPosition = FormStartPosition.CenterScreen;
 
-            formAgregar.Show();
+            if (formAgregar.ShowDialog() == DialogResult.OK)
+            {
+                // Refrescar la tabla de productos
+                ConsultarInventario consulta = new ConsultarInventario();
+                dgvProductos.DataSource = consulta.ConsInventario();
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Producto modificado exitosamente.", "Confirmación", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            
+           
+        }
+        private void btneditar_Click(object sender, EventArgs e)
+        {
+            if (dgvProductos.SelectedRows.Count > 0)
+            {
+                DataGridViewRow fila = dgvProductos.SelectedRows[0];
+
+                int id = Convert.ToInt32(fila.Cells["ProductoID"].Value);
+                string nombre = fila.Cells["NombreProducto"].Value.ToString();
+                string descripcion = fila.Cells["Descripcion"].Value.ToString();
+                decimal precio = Convert.ToDecimal(fila.Cells["PrecioUnitario"].Value);
+                string codigoBarras = fila.Cells["CodigoBarras"].Value.ToString();
+                int stock = Convert.ToInt32(fila.Cells["Stock"].Value);
+
+                FormularioEditarProducto formEditar = new FormularioEditarProducto();
+                formEditar.ProductoID = id;
+                formEditar.CargarDatos(nombre, descripcion, precio, codigoBarras, stock);
+                formEditar.StartPosition = FormStartPosition.CenterScreen;
+
+                if (formEditar.ShowDialog() == DialogResult.OK)
+                {
+                    // Recargar productos actualizados en el DataGridView
+                    dgvProductos.DataSource = new ConsultarInventario().ConsInventario();
+                }
+            }
+            else
+            {
+                MessageBox.Show("Seleccione un producto para editar.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -71,7 +107,17 @@ namespace ProyectoDesarrolloGUI
         }
         private void BuscarProducto()
         {
-            if (int.TryParse(txtb_Buscar.Text, out int id)) // Verifica si el ID es un número válido
+            string texto = txtb_Buscar.Text.Trim();
+
+            if (string.IsNullOrEmpty(texto))
+            {
+                // Si el TextBox está vacío, mostrar todo el inventario
+                ConsultarInventario consulta = new ConsultarInventario();
+                dgvProductos.DataSource = consulta.ConsInventario();
+                return;
+            }
+
+            if (int.TryParse(texto, out int id)) // Verifica si el ID es un número válido
             {
                 ConsultarInventario consulta = new ConsultarInventario();
                 DataTable resultado = consulta.BuscarProductoPorID(id);
@@ -88,8 +134,45 @@ namespace ProyectoDesarrolloGUI
             }
             else
             {
-                MessageBox.Show("Ingrese un ID válido.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                // No mostrar mensaje si solo está escribiendo letras o caracteres
+                // Podrías omitir este bloque o mostrar algo más amigable si deseas
             }
         }
+
+
+        private void dgvProductos_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+        private void btneliminar_Click(object sender, EventArgs e)
+        {
+            if (dgvProductos.SelectedRows.Count > 0)
+            {
+                int idProducto = Convert.ToInt32(dgvProductos.SelectedRows[0].Cells["ProductoID"].Value);
+
+                DialogResult resultado = MessageBox.Show("¿Seguro que deseas eliminar este producto?", "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+                if (resultado == DialogResult.Yes)
+                {
+                    ConsultarInventario consulta = new ConsultarInventario();
+                    bool eliminado = consulta.EliminarProductoPorID(idProducto);
+
+                    if (eliminado)
+                    {
+                        MessageBox.Show("Producto eliminado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        dgvProductos.DataSource = consulta.ConsInventario(); // Refrescar la tabla
+                    }
+                    else
+                    {
+                        MessageBox.Show("No se pudo eliminar el producto.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Selecciona un producto para eliminar.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+        }
+
     }
 }
