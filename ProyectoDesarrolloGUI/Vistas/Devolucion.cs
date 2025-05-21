@@ -15,6 +15,7 @@ namespace ProyectoDesarrolloGUI
     public partial class Devolucion : Form
     {
         private int productoIDSeleccionado = -1;
+
         public Devolucion()
         {
             InitializeComponent();
@@ -41,54 +42,44 @@ namespace ProyectoDesarrolloGUI
 
         private void btnConfirmar_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txt_IdTicket.Text) ||
-            string.IsNullOrWhiteSpace(txt_Cantidad.Text) ||
-            string.IsNullOrWhiteSpace(txt_Motivo.Text) ||
-            string.IsNullOrWhiteSpace(cmb_TipoDevolucion.Text) ||
-            dgv_DetallesVenta.SelectedRows.Count == 0)
+            if (!int.TryParse(txt_IdTicket.Text, out int ventaID))
             {
-                MessageBox.Show("Completa todos los campos y selecciona un producto para realizar la devolución.",
-                                "Campos incompletos", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("ID de ticket inválido.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
+            if (productoIDSeleccionado == -1)
+            {
+                MessageBox.Show("Seleccione un producto válido.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (!int.TryParse(txt_Cantidad.Text, out int cantidadDevuelta))
+            {
+                MessageBox.Show("Ingrese una cantidad válida para la devolución.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string tipoDevolucion = cmb_TipoDevolucion.SelectedItem?.ToString() ?? "";
+
             try
             {
-                int ventaID = Convert.ToInt32(txt_IdTicket.Text);
-                int cantidadDevuelta = Convert.ToInt32(txt_Cantidad.Text);
-                string motivo = txt_Motivo.Text.Trim();
-                string tipo = cmb_TipoDevolucion.Text.Trim();
+                var devolucionesBD = new DevolucionesBD();
+                devolucionesBD.RegistrarDevolucion(ventaID, productoIDSeleccionado, cantidadDevuelta, txt_Motivo.Text, tipoDevolucion);
 
-                // Obtener el ProductoID desde la fila seleccionada del DataGridView
-                DataGridViewRow filaSeleccionada = dgv_DetallesVenta.SelectedRows[0];
-                int productoID = Convert.ToInt32(filaSeleccionada.Cells["ProductoID"].Value);
-                int cantidadVendida = Convert.ToInt32(filaSeleccionada.Cells["CantidadVendida"].Value);
+                MessageBox.Show("Devolución realizada correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                // Validar que la cantidad a devolver no supere la cantidad vendida
-                if (cantidadDevuelta > cantidadVendida)
-                {
-                    MessageBox.Show("La cantidad a devolver no puede ser mayor a la cantidad vendida.",
-                                    "Cantidad inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
+                // Limpiar controles después de confirmar
+                txt_Cantidad.Text = "";
+                txt_Motivo.Text = "";
+                cmb_TipoDevolucion.SelectedIndex = -1;
 
-                // Realizar la devolución
-                DevolucionesBD db = new DevolucionesBD();
-                db.InsertarDevolucion(ventaID, productoID, cantidadDevuelta, motivo, tipo);
-
-                if (tipo.ToLower().Contains("stock") || tipo.ToLower().Contains("producto"))
-                {
-                    db.ReintegrarStock(productoID, cantidadDevuelta);
-                }
-
-                MessageBox.Show("Devolución registrada correctamente.",
-                                "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                LimpiarCampos();
+                // Refrescar la información del ticket si quieres actualizar el dgv u otros datos
+                btn_buscarticket.PerformClick();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al registrar la devolución: " + ex.Message,
-                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error al registrar devolución: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
         }
@@ -122,35 +113,66 @@ namespace ProyectoDesarrolloGUI
         {
 
         }
-
+        public class DetalleVentaView
+        {
+            public int ProductoID { get; set; }
+            public string Descripcion { get; set; }
+            public int CantidadVendida { get; set; }
+            public decimal PrecioUnitario { get; set; }
+            public decimal Subtotal { get; set; }
+        }
         private void btn_buscarticket_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txt_IdTicket.Text))
+            if (!int.TryParse(txt_IdTicket.Text, out int idTicket))
             {
-                MessageBox.Show("Ingresa el ID del ticket.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Por favor, ingrese un ID de ticket válido.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
+            var devolucionesBD = new DevolucionesBD();
+
             try
             {
-                int ventaID = Convert.ToInt32(txt_IdTicket.Text);
-                DevolucionesBD db = new DevolucionesBD();
-                DataTable venta = db.ObtenerDatosVenta(ventaID);
+                var venta = devolucionesBD.ObtenerVentaPorID(idTicket);
 
-                if (venta.Rows.Count > 0)
+                if (venta == null)
                 {
-                    txt_FechaCompra.Text = venta.Rows[0]["FechaVenta"].ToString();
-                    txt_MetodoPago.Text = venta.Rows[0]["MetodoPago"].ToString();
-                    dgv_DetallesVenta.DataSource = venta;
+                    MessageBox.Show("No se encontró ninguna venta con ese ID.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    // Limpia campos y grilla
+                    txt_FechaCompra.Text = "";
+                    txt_MetodoPago.Text = "";
+                    dgv_DetallesVenta.DataSource = null;
+                    dgv_DetallesVenta.Columns.Clear();
+                    return;
+                }
+
+                // Mostrar fecha y método de pago
+                txt_FechaCompra.Text = venta.Value.FechaCompra.ToString("yyyy-MM-dd HH:mm:ss");
+                txt_MetodoPago.Text = venta.Value.MetodoPago;
+
+                // Obtener detalles y llenar DataGridView
+                var detalles = devolucionesBD.ObtenerDetalleVentaPorID(idTicket);
+
+                dgv_DetallesVenta.DataSource = null;
+                dgv_DetallesVenta.Columns.Clear();
+
+                if (detalles.Count > 0)
+                {
+                    dgv_DetallesVenta.DataSource = detalles;
+
+                    // Opcional: ajustar ancho columnas
+                    dgv_DetallesVenta.AutoResizeColumns();
+                    dgv_DetallesVenta.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
                 }
                 else
                 {
-                    MessageBox.Show("No se encontró ninguna venta con ese ID.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("No hay productos asociados a esta venta.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    dgv_DetallesVenta.DataSource = null;
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al buscar el ticket: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Ocurrió un error: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -162,6 +184,25 @@ namespace ProyectoDesarrolloGUI
                 productoIDSeleccionado = Convert.ToInt32(fila.Cells["ProductoID"].Value);
 
                 txt_Cantidad.Text = fila.Cells["CantidadVendida"].Value.ToString();
+            }
+        }
+
+        private void dgv_DetallesVenta_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dgv_DetallesVenta.SelectedRows.Count > 0)
+            {
+                var fila = dgv_DetallesVenta.SelectedRows[0];
+                productoIDSeleccionado = Convert.ToInt32(fila.Cells["ProductoID"].Value);
+                string descripcion = fila.Cells["Descripcion"].Value.ToString();
+                int cantidadVendida = Convert.ToInt32(fila.Cells["CantidadVendida"].Value);
+                txt_Cantidad.Text = cantidadVendida.ToString();
+                txt_Motivo.Text = "";
+                cmb_TipoDevolucion.SelectedIndex = -1;
+
+                txt_Cantidad.Enabled = true;
+                txt_Motivo.Enabled = true;
+                cmb_TipoDevolucion.Enabled = true;
+                btnConfirmar.Enabled = true;
             }
         }
     }

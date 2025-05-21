@@ -5,73 +5,117 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
+using static ProyectoDesarrolloGUI.Devolucion;
 
 namespace ProyectoDesarrolloGUI.Base_de_datos
 {
     public class DevolucionesBD
     {
-        // 1. Obtener datos de la venta por ID de ticket
-        public DataTable ObtenerDatosVenta(int ventaID)
+        public (DateTime FechaCompra, string MetodoPago)? ObtenerVentaPorID(int idTicket)
         {
-            using (SqlConnection sqlcon = Conexion.GetInstancia().CrearConexion())
+            var conexion = Conexion.GetInstancia().CrearConexion();
+            string consulta = "SELECT FechaVenta, MetodoPago FROM dbo.Ventas WHERE VentaID = @VentaID";
+
+            using (SqlCommand cmd = new SqlCommand(consulta, conexion))
             {
-                string sql = @"SELECT V.FechaVenta, V.MetodoPago, V.Total, DV.ProductoID, P.NombreProducto, DV.CantidadVendida, DV.Subtotal
-                               FROM Ventas V
-                               INNER JOIN DetallesVenta DV ON V.VentaID = DV.VentaID
-                               INNER JOIN Productos P ON DV.ProductoID = P.ProductoID
-                               WHERE V.VentaID = @ventaID";
+                cmd.Parameters.AddWithValue("@VentaID", idTicket);
 
-                using (SqlCommand comando = new SqlCommand(sql, sqlcon))
+                try
                 {
-                    comando.Parameters.AddWithValue("@ventaID", ventaID);
-                    sqlcon.Open();
-
-                    SqlDataAdapter da = new SqlDataAdapter(comando);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
-                    return dt;
+                    conexion.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            DateTime fechaCompra = reader.GetDateTime(0);
+                            string metodoPago = reader.GetString(1);
+                            return (fechaCompra, metodoPago);
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+                finally
+                {
+                    conexion.Close();
                 }
             }
         }
 
-        // 2. Insertar una devolución
-        public void InsertarDevolucion(int ventaID, int productoID, int cantidadDevuelta, string motivo, string tipoDevolucion)
+        public List<DetalleVentaView> ObtenerDetalleVentaPorID(int idTicket)
         {
-            using (SqlConnection sqlcon = Conexion.GetInstancia().CrearConexion())
+            var lista = new List<DetalleVentaView>();
+            var conexion = Conexion.GetInstancia().CrearConexion();
+
+            string consulta = @"
+            SELECT dv.ProductoID, p.NombreProducto AS Descripcion, dv.CantidadVendida, dv.PrecioUnitario, dv.Subtotal
+            FROM dbo.DetallesVenta dv
+            INNER JOIN dbo.Productos p ON dv.ProductoID = p.ProductoID
+            WHERE dv.VentaID = @VentaID";
+
+            using (SqlCommand cmd = new SqlCommand(consulta, conexion))
             {
-                string sql = @"INSERT INTO Devoluciones (VentaID, ProductoID, CantidadDevuelta, FechaDevolucion, Motivo, TipoDevolucion)
-                               VALUES (@ventaID, @productoID, @cantidadDevuelta, GETDATE(), @motivo, @tipoDevolucion)";
+                cmd.Parameters.AddWithValue("@VentaID", idTicket);
 
-                using (SqlCommand comando = new SqlCommand(sql, sqlcon))
+                conexion.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
-                    comando.Parameters.AddWithValue("@ventaID", ventaID);
-                    comando.Parameters.AddWithValue("@productoID", productoID);
-                    comando.Parameters.AddWithValue("@cantidadDevuelta", cantidadDevuelta);
-                    comando.Parameters.AddWithValue("@motivo", motivo);
-                    comando.Parameters.AddWithValue("@tipoDevolucion", tipoDevolucion);
-
-                    sqlcon.Open();
-                    comando.ExecuteNonQuery();
+                    while (reader.Read())
+                    {
+                        lista.Add(new DetalleVentaView
+                        {
+                            ProductoID = reader.GetInt32(0),
+                            Descripcion = reader.GetString(1),
+                            CantidadVendida = reader.GetInt32(2),
+                            PrecioUnitario = reader.GetDecimal(3),
+                            Subtotal = reader.GetDecimal(4)
+                        });
+                    }
                 }
+                conexion.Close();
             }
+            return lista;
         }
-
-        // 3. Actualizar el stock (opcional: si es devolución con reintegro al inventario)
-        public void ReintegrarStock(int productoID, int cantidad)
+        public void RegistrarDevolucion(int ventaID, int productoID, int cantidadDevuelta, string motivo, string tipoDevolucion)
         {
-            using (SqlConnection sqlcon = Conexion.GetInstancia().CrearConexion())
+            var conexion = Conexion.GetInstancia().CrearConexion();
+
+            string consulta = @"
+        INSERT INTO dbo.Devoluciones 
+        (VentaID, ProductoID, CantidadDevuelta, FechaDevolucion, Motivo, TipoDevolucion)
+        VALUES
+        (@VentaID, @ProductoID, @CantidadDevuelta, @FechaDevolucion, @Motivo, @TipoDevolucion)";
+
+            using (SqlCommand cmd = new SqlCommand(consulta, conexion))
             {
-                string sql = "UPDATE Productos SET Stock = Stock + @cantidad WHERE ProductoID = @productoID";
+                cmd.Parameters.AddWithValue("@VentaID", ventaID);
+                cmd.Parameters.AddWithValue("@ProductoID", productoID);
+                cmd.Parameters.AddWithValue("@CantidadDevuelta", cantidadDevuelta);
+                cmd.Parameters.AddWithValue("@FechaDevolucion", DateTime.Now);
+                cmd.Parameters.AddWithValue("@Motivo", motivo);
+                cmd.Parameters.AddWithValue("@TipoDevolucion", tipoDevolucion);
 
-                using (SqlCommand comando = new SqlCommand(sql, sqlcon))
+                try
                 {
-                    comando.Parameters.AddWithValue("@productoID", productoID);
-                    comando.Parameters.AddWithValue("@cantidad", cantidad);
-
-                    sqlcon.Open();
-                    comando.ExecuteNonQuery();
+                    conexion.Open();
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+                finally
+                {
+                    conexion.Close();
                 }
             }
         }
     }
+    
 }

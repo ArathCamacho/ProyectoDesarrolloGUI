@@ -111,7 +111,7 @@
             this.btnConfirmar.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnConfirmar.Location = new System.Drawing.Point(93, 495);
             this.btnConfirmar.Name = "btnConfirmar";
-            this.btnConfirmar.Size = new System.Drawing.Size(197, 32);
+            this.btnConfirmar.Size = new System.Drawing.Size(204, 49);
             this.btnConfirmar.TabIndex = 48;
             this.btnConfirmar.Text = "Confirmar Devolución";
             this.btnConfirmar.UseVisualStyleBackColor = false;
@@ -124,7 +124,7 @@
             this.btnLimpiar.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnLimpiar.Location = new System.Drawing.Point(336, 495);
             this.btnLimpiar.Name = "btnLimpiar";
-            this.btnLimpiar.Size = new System.Drawing.Size(90, 32);
+            this.btnLimpiar.Size = new System.Drawing.Size(98, 49);
             this.btnLimpiar.TabIndex = 49;
             this.btnLimpiar.Text = "Limpiar";
             this.btnLimpiar.UseVisualStyleBackColor = false;
@@ -137,7 +137,7 @@
             this.btnCancelar.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnCancelar.Location = new System.Drawing.Point(457, 495);
             this.btnCancelar.Name = "btnCancelar";
-            this.btnCancelar.Size = new System.Drawing.Size(99, 32);
+            this.btnCancelar.Size = new System.Drawing.Size(107, 49);
             this.btnCancelar.TabIndex = 50;
             this.btnCancelar.Text = "Cancelar";
             this.btnCancelar.UseVisualStyleBackColor = false;
@@ -159,6 +159,7 @@
             this.dgv_DetallesVenta.Size = new System.Drawing.Size(675, 294);
             this.dgv_DetallesVenta.TabIndex = 51;
             this.dgv_DetallesVenta.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgv_DetallesVenta_CellClick);
+            this.dgv_DetallesVenta.SelectionChanged += new System.EventHandler(this.dgv_DetallesVenta_SelectionChanged);
             // 
             // ID_Producto
             // 
@@ -199,7 +200,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(92, 467);
+            this.label1.Location = new System.Drawing.Point(44, 467);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(163, 19);
             this.label1.TabIndex = 57;
@@ -210,7 +211,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(74, 435);
+            this.label2.Location = new System.Drawing.Point(26, 435);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(181, 19);
             this.label2.TabIndex = 56;
@@ -221,7 +222,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(84, 407);
+            this.label3.Location = new System.Drawing.Point(36, 407);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(171, 19);
             this.label3.TabIndex = 55;
@@ -260,6 +261,9 @@
             // cmb_TipoDevolucion
             // 
             this.cmb_TipoDevolucion.FormattingEnabled = true;
+            this.cmb_TipoDevolucion.Items.AddRange(new object[] {
+            "Efectivo",
+            "Tarjeta"});
             this.cmb_TipoDevolucion.Location = new System.Drawing.Point(255, 460);
             this.cmb_TipoDevolucion.Name = "cmb_TipoDevolucion";
             this.cmb_TipoDevolucion.Size = new System.Drawing.Size(249, 24);
